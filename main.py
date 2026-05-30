@@ -123,7 +123,7 @@ class MailClassifier:
 
                     data = Mail(text)
 
-                    res = self.classification(data)
+                    res = self.classification(data.to_json())
                     target_folder = folder_map.get(res)
                     if target_folder:
                         shutil.move(str(file_path), str(target_folder))
