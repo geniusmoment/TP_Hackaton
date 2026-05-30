@@ -119,17 +119,21 @@ class MailClassifier:
             if file_path.is_file():
                 log.append(f"Файл {file_path} принят в обработку")
                 if str(file_path)[-3:] == "txt" or str(file_path)[-3:] == "eml":
-                    text = file_path.read_text(encoding="utf-8")
-
-                    data = Mail(text)
-
-                    res = self.classification(data.to_json())
-                    target_folder = folder_map.get(res)
-                    if target_folder:
-                        shutil.move(str(file_path), str(target_folder))
-                        log.append(
-                            f"Файл {file_path} успешно перемещен в {target_folder}"
-                        )
+                    try:
+                        text = file_path.read_text(encoding="utf-8")
+    
+                        data = Mail(text)
+    
+                        res = self.classification(data.to_json())
+                        target_folder = folder_map.get(res)
+                        if target_folder:
+                            shutil.move(str(file_path), str(target_folder))
+                            log.append(
+                                f"Файл {file_path} успешно перемещен в {target_folder}"
+                            )
+                    except UnicodeDecodeError:
+                        log.append(f"Файл {file_path} имеет некорректную кодировку, пропущен")
+                        continue
 
                 elif str(file_path)[-3:] == "bin":
                     log.append(f"Файл {file_path} не удалось расшифровать")
