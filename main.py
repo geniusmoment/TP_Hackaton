@@ -146,7 +146,6 @@ class MailClassifier:
         for i in log:
             print(i)
 
-
 def main():
     pyt = sys.argv
     cl = MailClassifier(pyt)
