@@ -3,6 +3,8 @@ import shutil
 from pathlib import Path
 import re
 
+folders = ['Incidents', 'Access', 'Spam', 'Support', 'Info', 'Documents', 'Other']
+
 class Mail():
     def __init__(self, text):
         self.From = ""
@@ -69,10 +71,7 @@ def classification(data):
     :return: "Важное" | "Спам" | "Черновик" | "Исходящие"
     """
     import random
-    return random.choice(["Важное", "Спам", "Черновик", "Исходящие"])
-
-
-
+    return random.choice(folders)
 
 
 def main():
@@ -90,14 +89,13 @@ def main():
     ds_path.unlink(missing_ok=True)
 
     sc_dir = Path(__file__).resolve().parent
-    p_1 = sc_dir / "Важное"
-    p_1.mkdir(exist_ok=True)
-    p_2 = sc_dir / "Спам"
-    p_2.mkdir(exist_ok=True)
-    p_3 = sc_dir / "Черновик"
-    p_3.mkdir(exist_ok=True)
-    p_4 = sc_dir / "Исходящие"
-    p_4.mkdir(exist_ok=True)
+
+    folder_map = {}
+    for folder_name in folders:
+        path = sc_dir / folder_name
+        path.mkdir(exist_ok=True)
+
+        folder_map[folder_name] = path
 
     folder = Path("new_data")
     files = [f for f in folder.rglob("*") if f.is_file()]
@@ -111,18 +109,10 @@ def main():
                 data2 = {"From": data.From, "To": data.To, "Subject": data.Subject, "Date": data.Date, "Body": data.Body}
 
                 res = classification(data2)
-                if res == "Важное":
-                    shutil.move(str(file_path), str(p_1))
-                    log.append(f"Файл {file_path} успешно перемещен в {p_1}")
-                if res == "Спам":
-                    shutil.move(str(file_path), str(p_2))
-                    log.append(f"Файл {file_path} успешно перемещен в {p_2}")
-                if res == "Черновик":
-                    shutil.move(str(file_path), str(p_3))
-                    log.append(f"Файл {file_path} успешно перемещен в {p_3}")
-                if res == "Исходящие":
-                    shutil.move(str(file_path), str(p_4))
-                    log.append(f"Файл {file_path} успешно перемещен в {p_4}")
+                target_folder = folder_map.get(res)
+                if target_folder:
+                    shutil.move(str(file_path), str(target_folder))
+                    log.append(f"Файл {file_path} успешно перемещен в {target_folder}")
 
             elif str(file_path)[-3:] == "bin":
                 log.append(f"Файл {file_path} не удалось расшифровать")
