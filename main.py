@@ -4,8 +4,12 @@ from pathlib import Path
 import re
 
 import json
+import logging
 from collections import defaultdict
 from openai import OpenAI
+
+logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
+logger = logging.getLogger(__name__)
 
 class Mail():
     def __init__(self, text):
@@ -226,16 +230,13 @@ class MailClassifier:
         return best_category
 
     def sort_files(self, use_ai=False):
-        log = []
-
         try:
             if str(self.pyt[1])[-3:] == "zip":
                 shutil.unpack_archive(self.pyt[1], extract_dir="new_data")
             else:
                 shutil.copytree(self.pyt[1], Path(__file__).resolve().parent / "new_data", dirs_exist_ok=True)
         except IndexError:
-            log.append("Не передан путь к архиву, запустить код через Bash крипт с указание Path на архив")
-            print("Не передан путь к архиву, запустить код через Bash крипт с указание Path на архив")
+            logger.info("Не передан путь к архиву, запустить код через Bash крипт с указание Path на архив")
             exit(0)
 
         ds_path = Path("new_data/inbox/.DS_Store")
@@ -255,8 +256,7 @@ class MailClassifier:
         files = [f for f in folder.rglob("*") if f.is_file()]
         for file_path in files:
             if file_path.is_file():
-                log.append(f"Файл {file_path} принят в обработку")
-                print(f"Файл {file_path} принят в обработку")
+                logger.info(f"Файл {file_path} принят в обработку")
                 if str(file_path)[-3:] == "txt" or str(file_path)[-3:] == "eml":
                     
                     # print('file_path:', file_path)
@@ -269,32 +269,23 @@ class MailClassifier:
                         target_folder = folder_map.get(res)
                         if target_folder:
                             shutil.move(str(file_path), str(target_folder), )
-                            log.append(f"Файл {file_path} успешно перемещен в {target_folder}")
-                            print(f"Файл {file_path} успешно перемещен в {target_folder}")
+                            logger.info(f"Файл {file_path} успешно перемещен в {target_folder}")
                     except UnicodeDecodeError:
-                        log.append(f"Файл {file_path} имеет некорректную кодировку, пропущен")
-                        print(f"Файл {file_path} имеет некорректную кодировку, пропущен")
+                        logger.info(f"Файл {file_path} имеет некорректную кодировку, пропущен")
                         continue
 
 
                 elif str(file_path)[-3:] == "bin":
-                    log.append(f"Файл {file_path} не удалось расшифровать")
-                    print(f"Файл {file_path} не удалось расшифровать")
+                    logger.info(f"Файл {file_path} не удалось расшифровать")
 
                 elif str(file_path)[-4:] == "json":
-                    log.append(f"Файл {file_path} не удалось расшифровать")
-                    print(f"Файл {file_path} не удалось расшифровать")
+                    logger.info(f"Файл {file_path} не удалось расшифровать")
 
                 elif str(file_path)[-4:] == "jpeg":
-                    log.append(f"Файл {file_path} не является письмом")
-                    print(f"Файл {file_path} не является письмом")
+                    logger.info(f"Файл {file_path} не является письмом")
 
                 else:
-                    log.append(f"Файл {file_path} является неизвестным форматом")
-                    print(f"Файл {file_path} является неизвестным форматом")
-
-        # for i in log:
-        #     print(i)
+                    logger.info(f"Файл {file_path} является неизвестным форматом")
 
 
 def main():
