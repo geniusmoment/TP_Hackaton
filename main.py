@@ -229,9 +229,14 @@ class MailClassifier:
         log = []
 
         try:
-            shutil.unpack_archive(self.pyt[1], extract_dir="new_data")
+            if str(self.pyt[1])[-3:] == "zip":
+                shutil.unpack_archive(self.pyt[1], extract_dir="new_data")
+            else:
+                shutil.copytree(self.pyt[1], Path(__file__).resolve().parent / "new_data", dirs_exist_ok=True)
         except IndexError:
-            log.append("Не передан путь к архиву")
+            log.append("Не передан путь к архиву, запустить код через Bash крипт с указание Path на архив")
+            print("Не передан путь к архиву, запустить код через Bash крипт с указание Path на архив")
+            exit(0)
 
         ds_path = Path("new_data/inbox/.DS_Store")
         ds_path.unlink(missing_ok=True)
@@ -241,6 +246,7 @@ class MailClassifier:
         folder_map = {}
         for folder_name in self.folders:
             path = sc_dir / folder_name
+            shutil.rmtree(path, ignore_errors=True)
             path.mkdir(exist_ok=True)
 
             folder_map[folder_name] = path
@@ -250,9 +256,10 @@ class MailClassifier:
         for file_path in files:
             if file_path.is_file():
                 log.append(f"Файл {file_path} принят в обработку")
+                print(f"Файл {file_path} принят в обработку")
                 if str(file_path)[-3:] == "txt" or str(file_path)[-3:] == "eml":
                     
-                    print('file_path:', file_path)
+                    # print('file_path:', file_path)
                     try:
                         text = file_path.read_text(encoding="utf-8")
 
@@ -261,27 +268,33 @@ class MailClassifier:
 
                         target_folder = folder_map.get(res)
                         if target_folder:
-                            shutil.move(str(file_path), str(target_folder))
+                            shutil.move(str(file_path), str(target_folder), )
                             log.append(f"Файл {file_path} успешно перемещен в {target_folder}")
+                            print(f"Файл {file_path} успешно перемещен в {target_folder}")
                     except UnicodeDecodeError:
                         log.append(f"Файл {file_path} имеет некорректную кодировку, пропущен")
+                        print(f"Файл {file_path} имеет некорректную кодировку, пропущен")
                         continue
 
 
                 elif str(file_path)[-3:] == "bin":
                     log.append(f"Файл {file_path} не удалось расшифровать")
+                    print(f"Файл {file_path} не удалось расшифровать")
 
                 elif str(file_path)[-4:] == "json":
                     log.append(f"Файл {file_path} не удалось расшифровать")
+                    print(f"Файл {file_path} не удалось расшифровать")
 
                 elif str(file_path)[-4:] == "jpeg":
                     log.append(f"Файл {file_path} не является письмом")
+                    print(f"Файл {file_path} не является письмом")
 
                 else:
                     log.append(f"Файл {file_path} является неизвестным форматом")
+                    print(f"Файл {file_path} является неизвестным форматом")
 
-        for i in log:
-            print(i)
+        # for i in log:
+        #     print(i)
 
 
 def main():
