@@ -2,6 +2,7 @@ import sys
 import shutil
 from pathlib import Path
 import re
+import os
 
 import json
 import logging
@@ -168,9 +169,12 @@ class MailClassifier:
 """
 
     def classification_ai(self, data: json):
+        api_key = os.getenv("OPENAI_API_KEY", "")
+        base_url = os.getenv("OPENAI_BASE_URL", "")
+
         client = OpenAI(
-            api_key="",
-            base_url="",
+            api_key=api_key,
+            base_url=base_url,
         )
         
         try:

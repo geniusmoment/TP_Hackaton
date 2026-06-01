@@ -7,6 +7,9 @@ MAIN="$SCRIPT_DIR/main.py"
 ARCHIVE="$SCRIPT_DIR/inbox.zip"
 LOG_FILE="$SCRIPT_DIR/classification.log"
 
+export OPENAI_API_KEY=""
+export OPENAI_BASE_URL="https://api.openai.com/v1"
+
 USE_AI_FLAG=""
 if [ "$1" == "--use-ai" ]; then
     USE_AI_FLAG="--use-ai"
