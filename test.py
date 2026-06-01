@@ -38,7 +38,14 @@ class TestIncidentsCategory: # сделан
             "Body": body
         }
         result = classifier.classification(data, use_ai=False)
-        assert result == "Incidents", f"Ошибка в тесте: {subject} | {body}"
+        if result != "Incidents":
+            print(f"\n❌ ТЕМА: {subject}")
+            print(f"   ТЕЛО: {body[:50]}...")
+            print(f"   ОЖИДАЛОСЬ: Incidents")
+            print(f"   ПОЛУЧЕНО: {result}")
+        else:
+            print(f"\n✅ Incidents: {subject[:40]}")
+        assert result == "Incidents", f"Ошибка: {subject} | {body} → получено {result}"
 
 
 
