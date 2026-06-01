@@ -408,15 +408,24 @@ class MailClassifier:
 
                 elif str(file_path)[-3:] == "bin":
                     logger.info(f"Файл {file_path} не удалось расшифровать")
+                    self.analytics.log_skipped_format(ext or "no_ext")
 
                 elif str(file_path)[-4:] == "json":
                     logger.info(f"Файл {file_path} не удалось расшифровать")
+                    self.analytics.log_skipped_format(ext or "no_ext")
 
                 elif str(file_path)[-4:] == "jpeg":
                     logger.info(f"Файл {file_path} не является письмом")
+                    self.analytics.log_skipped_format(ext or "no_ext")
 
                 else:
                     logger.info(f"Файл {file_path} является неизвестным форматом")
+                    self.analytics.log_skipped_format(ext or "no_ext")
+
+        self.analytics.stop_timer()
+
+        self.analytics.save_txt(sc_dir / "analytics_report.txt")
+        self.analytics.graphics_data(sc_dir)
 
 
 def main():
