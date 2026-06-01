@@ -15,6 +15,9 @@ import seaborn as sns
 logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 class Mail():
     def __init__(self, text):
         self.From = ""
@@ -105,10 +108,9 @@ class MailAnalytics:
 
     def generate_reports(self, output_dir: Path):
         output_dir.mkdir(parents=True, exist_ok=True)
-        with open(output_dir / "analytics.txt", "w", encoding="utf-8") as f:
-            f.write(f"Total Duration:  {self.total_duration:.2f} sec\n")
-            f.write(f"Avg Time per Mail:  {self.avg_time:.4f} sec\n")
-            f.write(f"Total Files Detected :  {self.total_files_seen} files\n")
+        print(f"\nTotal Duration:  {self.total_duration:.2f} sec")
+        print(f"Avg Time per Mail:  {self.avg_time:.4f} sec")
+        print(f"Total Files Detected :  {self.total_files_seen} files\n")
 
         if self.total_files_seen == 0: 
             return
