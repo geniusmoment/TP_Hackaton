@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch, MagicMock
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
 
-from Main.py import Mail, MailClassifier
+from main import Mail, MailClassifier
 
 
 class TestIncidentsCategory: # сделан
