@@ -83,121 +83,58 @@ class MailAnalytics:
         self.skipped_encodings = 0
         self.skipped_formats = defaultdict(int)
         self.category_counts = defaultdict(int)
-        self.ai_used_count = 0
         self.start_time = 0.0
         self.end_time = 0.0
 
-    def start_timer(self):
-        self.start_time = time.time()
-
-    def stop_timer(self):
-        self.end_time = time.time()
+    def start_timer(self): self.start_time = time.time()
+    def stop_timer(self): self.end_time = time.time()
 
     @property
-    def total_duration(self):
-        if self.start_time == 0:
-            return 0.0
-        return (self.end_time if self.end_time > 0 else time.time()) - self.start_time
+    def total_duration(self): return self.end_time - self.start_time
 
     @property
-    def avg_time(self):
-        if self.processed_mails == 0:
-            return 0.0
-        return self.total_duration / self.processed_mails
+    def avg_time(self): return self.total_duration / self.processed_mails if self.processed_mails else 0.0
 
-    def log_file_seen(self):
-        self.total_files_seen += 1
-
-    def log_processed(self, category, used_ai=False):
+    def log_file_seen(self): self.total_files_seen += 1
+    def log_encoding_error(self): self.skipped_encodings += 1
+    def log_skipped_format(self, extension): self.skipped_formats[extension] += 1
+    
+    def log_processed(self, category):
         self.processed_mails += 1
         self.category_counts[category] += 1
-        if used_ai:
-            self.ai_used_count += 1
 
-    def log_encoding_error(self):
-        self.skipped_encodings += 1
+    def generate_reports(self, output_dir: Path):
+        print(f"\nTotal Duration:  {self.total_duration:.2f} sec")
+        print(f"Avg Time per Mail:  {self.avg_time:.4f} sec")
+        print(f"Total Files Detected :  {self.total_files_seen} files\n")
 
-    def log_skipped_format(self, extension):
-        self.skipped_formats[extension] += 1
-
-    def save_txt(self, output_path: Path):
-        """Формирует красивый и читабельный отчет в формате .txt файла."""
-        report = []
-        border = "+" + "-"*58 + "+"
-        
-        report.append(border)
-        report.append(f"| {'MAIL CLASSIFICATION SYSTEM PERFORMANCE REPORT':^56} |")
-        report.append(border)
-        
-        report.append(f"| {'1. EXECUTION SUMMARY':<56} |")
-        report.append(border)
-        report.append(f"| Total Duration       : {self.total_duration:>30.2f} sec |")
-        report.append(f"| Avg Time per Mail    : {self.avg_time:>30.4f} sec |")
-        report.append(f"| Total Files Detected : {self.total_files_seen:>30} files |")
-        report.append(border)
-        
-        report.append(f"| {'2. PROCESSING PIPELINE FILTERING':<56} |")
-        report.append(border)
-        report.append(f"| Mails Processed Successfully : {self.processed_mails:>22} files |")
-        report.append(f"|   -> Classified via AI       : {self.ai_used_count:>22} files |")
-        report.append(f"| Skipped due to Encoding Error: {self.skipped_encodings:>22} files |")
-        
-        report.append(f"| Skipped due to Invalid Format: {(sum(self.skipped_formats.values())):>22} files |")
-        
-        if self.skipped_formats:
-            report.append(f"| {'   [Breakdown by Extension]':<56} |")
-            for ext, count in self.skipped_formats.items():
-                report.append(f"|     - .{ext:<10}          : {count:>22} files |")
-        report.append(border)
-        
-        report.append(f"| {'3. CATEGORY DISTRIBUTION':<56} |")
-        report.append(border)
-        report.append(f"| {'Category':<15} | {'Count (pcs)':<15} | {'Percentage (%)':<18} |")
-        report.append("|" + "-"*17 + "+" + "-"*17 + "+" + "-"*22 + "|")
-        
-        for cat, count in sorted(self.category_counts.items(), key=lambda x: x[1], reverse=True):
-            report.append(f"| {cat:<15} | {count:>15} | {((count / self.processed_mails * 100) if self.processed_mails > 0 else 0):>17.1f}% |")
-            
-        report.append(border)
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write("\n".join(report))
-
-    def graphics_data(self, save_path: Path):
-        if self.total_files_seen == 0:
+        if self.total_files_seen == 0: 
             return
 
+        output_dir.mkdir(parents=True, exist_ok=True)
         sns.set_theme(style="whitegrid")
         fig, axes = plt.subplots(1, 2, figsize=(15, 6))
-        fig.suptitle('Mail Classification System Performance Report', fontsize=16, fontweight='bold')
+        fig.suptitle('Отчет по обработке писем', fontsize=16, fontweight='bold')
 
         if self.category_counts:
-            categories = list(self.category_counts.keys())
-            counts = list(self.category_counts.values())
-            colors = sns.color_palette("pastel", len(categories))
-            axes[0].pie(counts, labels=categories, autopct='%1.1f%%', startangle=140, colors=colors, 
+            axes[0].pie(self.category_counts.values(), labels=self.category_counts.keys(), autopct='%1.1f%%', 
+                        startangle=140, colors=sns.color_palette("pastel", len(self.category_counts)), 
                         wedgeprops={'edgecolor': 'gray', 'linewidth': 1.0})
-            axes[0].set_title('Mail Distribution by Categories', fontsize=12, fontweight='bold')
         else:
-            axes[0].text(0.5, 0.5, 'No processed emails', ha='center', va='center', fontsize=12)
+            axes[0].text(0.5, 0.5, 'Нет обработанных писем', ha='center', va='center')
+        axes[0].set_title('Распределение по категориям', fontsize=12, fontweight='bold')
 
-        stats_labels = ['Total Files', 'Processed', 'Encoding Error', 'Invalid Format']
-        stats_values = [
-            self.total_files_seen, 
-            self.processed_mails, 
-            self.skipped_encodings, 
-            sum(self.skipped_formats.values())
-        ]
+        stats_val = [self.total_files_seen, self.processed_mails, self.skipped_encodings, sum(self.skipped_formats.values())]
         
-        sns.barplot(x=stats_values, y=stats_labels, ax=axes[1], palette="viridis")
-        axes[1].set_title('File Processing Statistics (files)', fontsize=12, fontweight='bold')
-        axes[1].set_xlabel('Count')
+        sns.barplot(x=stats_val, y=['Всего файлов', 'Обработано', 'Ошибка декодирования', 'Неверный формат'], ax=axes[1], palette="viridis")
+        axes[1].set_title('Успешность обработки', fontsize=12, fontweight='bold')
+        axes[1].set_xlabel('файлов')
         
-        for i, v in enumerate(stats_values):
+        for i, v in enumerate(stats_val):
             axes[1].text(v + 0.2, i, str(v), va='center', fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(save_path / "analytics_charts.png", dpi=300)
+        plt.savefig(output_dir / "analytics.png", dpi=300)
         plt.close()
 
 class MailClassifier:
@@ -400,7 +337,7 @@ class MailClassifier:
                         if target_folder:
                             shutil.move(str(file_path), str(target_folder), )
                             logger.info(f"Файл {file_path} успешно перемещен в {target_folder}")
-                        self.analytics.log_processed(res, used_ai=use_ai)
+                        self.analytics.log_processed(res)
                     except UnicodeDecodeError:
                         logger.info(f"Файл {file_path} имеет некорректную кодировку, пропущен")
                         continue
@@ -424,8 +361,7 @@ class MailClassifier:
 
         self.analytics.stop_timer()
 
-        self.analytics.save_txt(sc_dir / "analytics_report.txt")
-        self.analytics.graphics_data(sc_dir)
+        self.analytics.generate_reports(sc_dir)
 
 
 def main():
