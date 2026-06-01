@@ -104,14 +104,16 @@ class MailAnalytics:
         self.category_counts[category] += 1
 
     def generate_reports(self, output_dir: Path):
-        print(f"\nTotal Duration:  {self.total_duration:.2f} sec")
-        print(f"Avg Time per Mail:  {self.avg_time:.4f} sec")
-        print(f"Total Files Detected :  {self.total_files_seen} files\n")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        with open(output_dir / "analytics.txt", "w", encoding="utf-8") as f:
+            f.write(f"Total Duration:  {self.total_duration:.2f} sec\n")
+            f.write(f"Avg Time per Mail:  {self.avg_time:.4f} sec\n")
+            f.write(f"Total Files Detected :  {self.total_files_seen} files\n")
 
         if self.total_files_seen == 0: 
             return
 
-        output_dir.mkdir(parents=True, exist_ok=True)
+        
         sns.set_theme(style="whitegrid")
         fig, axes = plt.subplots(1, 2, figsize=(15, 6))
         fig.suptitle('Отчет по обработке писем', fontsize=16, fontweight='bold')
