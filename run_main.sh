@@ -7,6 +7,11 @@ MAIN="$SCRIPT_DIR/main.py"
 ARCHIVE="$SCRIPT_DIR/inbox.zip"
 LOG_FILE="$SCRIPT_DIR/classification.log"
 
+USE_AI_FLAG=""
+if [ "$1" == "--use-ai" ]; then
+    USE_AI_FLAG="--use-ai"
+fi
+
 echo "=== [$(date '+%Y-%m-%d %H:%M:%S')] Starting email classification ===" | tee -a "$LOG_FILE"
 
 if [ ! -f "$MAIN" ]; then
@@ -20,5 +25,10 @@ if [ ! -f "$ARCHIVE" ]; then
 fi
 
 echo "Processing archive: $ARCHIVE" | tee -a "$LOG_FILE"
-python "$MAIN" "$ARCHIVE" 2>&1 | tee
+if [ ! -z "$USE_AI_FLAG" ]; then
+    echo "Using AI-based classification." | tee -a "$LOG_FILE"
+else
+    echo "Using rule-based classification." | tee -a "$LOG_FILE"
+fi
+python "$MAIN" "$ARCHIVE" $USE_AI_FLAG 2>&1 | tee -a "$LOG_FILE"
 echo "=== [$(date '+%Y-%m-%d %H:%M:%S')] Processing completed successfully ===" | tee -a "$LOG_FILE"
