@@ -165,8 +165,8 @@ class MailClassifier:
 
     def classification_ai(self, data: json):
         client = OpenAI(
-            api_key=api_key,
-            base_url=base_url,
+            api_key="",
+            base_url="",
         )
         
         try:
@@ -181,12 +181,15 @@ class MailClassifier:
             )
 
             raw_content = response.choices[0].message.content
-            result = json.loads(raw_content)['category']
 
-            # Базовая валидация
-            pass 
+            try:
+                result = json.loads(raw_content)['category']
+                if result in self.folders: return result 
+                else: logger.info(f"ИИ вернул недопустимую категорию: {result}")
 
-            return result
+            except Exception as e:
+                logger.warning(f"Не удалось обработать AI-ответ: {raw_content}, error: {e}")
+                return "Other"
 
         except Exception as e:
             return "Other"
@@ -368,7 +371,10 @@ def main():
     pyt = sys.argv
     cl = MailClassifier(pyt)
 
-    cl.sort_files()
+    if '--use-ai' in pyt:
+        cl.sort_files(use_ai=True)
+    else:
+        cl.sort_files()
 
 if __name__ == "__main__":
     main()
