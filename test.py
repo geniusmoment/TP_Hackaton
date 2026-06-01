@@ -15,7 +15,7 @@ class TestIncidentsCategory: # сделан
     
     @pytest.fixture
     def classifier(self):
-        with patch("skamfail.False"):
+        with patch("builtins.open"):
             return MailClassifier(["script.py", "fake.zip"])
     
     @pytest.mark.parametrize("subject,body", [
@@ -47,7 +47,7 @@ class TestAccessCategory: # сделан
     
     @pytest.fixture
     def classifier(self):
-        with patch("skamfail.False"):
+        with patch("builtins.open"):
             return MailClassifier(["script.py", "fake.zip"])
     
     @pytest.mark.parametrize("subject,body", [
@@ -77,7 +77,7 @@ class TestSpamCategory: # сделан
     
     @pytest.fixture
     def classifier(self):
-        with patch("skamfail.False"):
+        with patch("builtins.open"):
             return MailClassifier(["script.py", "fake.zip"])
     
     @pytest.mark.parametrize("subject,body", [
@@ -111,7 +111,7 @@ class TestSupportCategory: # сделан
     
     @pytest.fixture
     def classifier(self): 
-        with patch("skamfail.False"):
+        with patch("builtins.open"):
             return MailClassifier(["script.py", "fake.zip"])
     
     @pytest.mark.parametrize("subject,body", [
@@ -144,7 +144,7 @@ class TestInfoCategory:
     
     @pytest.fixture
     def classifier(self):
-        with patch("skamfail.False"):
+        with patch("builtins.open"):
             return MailClassifier(["script.py", "fake.zip"])
     
     @pytest.mark.parametrize("subject,body", [
@@ -176,7 +176,7 @@ class TestDocumentsCategory: # сделан
     
     @pytest.fixture
     def classifier(self):
-        with patch("skamfail.False"):
+        with patch("builtins.open"):
             return MailClassifier(["script.py", "fake.zip"])
     
     @pytest.mark.parametrize("subject,body", [
@@ -209,7 +209,7 @@ class TestOtherCategory: # сделано
     
     @pytest.fixture
     def classifier(self):
-        with patch("skamfail.False"):
+        with patch("builtins.open"):
             return MailClassifier(["script.py", "fake.zip"])
     
     @pytest.mark.parametrize("subject,body", [
@@ -242,7 +242,7 @@ class TestCategoryCompetition:
     
     @pytest.fixture
     def classifier(self):
-        with patch("skamfail.False"):
+        with patch("builtins.open"):
             return MailClassifier(["script.py", "fake.zip"])
     
     @pytest.mark.parametrize("subject,body,expected", [
