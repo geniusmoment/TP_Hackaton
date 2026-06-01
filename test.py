@@ -28,7 +28,7 @@ class TestIncidentsCategory: # сделан
         ("Работа остановлена", "Производство встало"),
         ("Alert!","Корпус затопило, срочно покиньте здание"),
         ("Error: не работает", "Need urgent recovery"),
-        ("URGENT: Server down", "Production server is not responding")
+        ("URGENT: alert, Server down", "Production server is not responding")
     ])
     def test_incidents_detection(self, classifier, subject, body):
         """Проверка, что письма с инцидентами определяются как Incidents, From = """
