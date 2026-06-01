@@ -170,6 +170,8 @@ class MailClassifier:
         )
         
         try:
+            time.sleep(1)    # во избежание превышения лимитов на кол-во запросов в секунду
+            
             user_message = json.dumps(data)
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
